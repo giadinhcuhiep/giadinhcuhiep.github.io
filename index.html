@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đại gia đình Cụ Hiệp</title>
+<meta name="theme-color" content="#7b1e1e">
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&family=Noto+Serif:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f1e9;
+    --card: #ffffff;
+    --ink: #1f1a17;
+    --muted: #6e635a;
+    --line: #e3d8c7;
+    --red: #7b1e1e;          /* đỏ đô */
+    --red-dark: #5e1515;
+    --gold: #a8843f;         /* vàng đồng trầm */
+    --gold-soft: #f3ebdc;
+    --green: #3f5e4a;
+    --on: #ffffff;
+    --serif: 'Noto Serif', Georgia, 'Times New Roman', serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; color: var(--ink); background: var(--bg);
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 19px; line-height: 1.5;
+  }
+  button { font: inherit; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 48px; }
+  svg.i { width: 26px; height: 26px; flex: 0 0 auto; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ===== Ảnh bìa + tên gia đình (kiểu trang bìa) ===== */
+  .hero { position: relative; height: 340px; margin: 0 -16px; overflow: hidden; background: #3b2a22; }
+  .hero .photo { position: absolute; inset: 0; background: center 62% / cover no-repeat; }
+  .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.05) 60%, rgba(0,0,0,.25)); }
+  .masthead { text-align: center; padding: 18px 8px 4px; }
+  .masthead h1 { margin: 0; font-family: var(--serif); font-size: 38px; line-height: 1.2; font-weight: 700; color: var(--red); }
+  .masthead .orn { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 8px auto 0; color: var(--gold); max-width: 360px; }
+  .masthead .orn::before, .masthead .orn::after { content: ''; flex: 1; height: 1px; background: var(--gold); opacity: .6; }
+  .masthead .orn span { font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+
+  /* ===== Hai nút: Gia phả / Ngày giỗ ===== */
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0 8px; }
+  .act {
+    display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 10px 16px; text-align: left;
+    border: 1px solid var(--line); border-radius: 12px; cursor: pointer; background: var(--card); color: var(--ink);
+    font-size: 20px; font-weight: 700;
+  }
+  .act svg.i { width: 30px; height: 30px; color: var(--red); }
+  .act small { display: block; font-size: 14px; font-weight: 400; color: var(--muted); }
+  .act:hover { border-color: var(--gold); }
+  .act:active { background: var(--gold-soft); }
+
+  /* ===== Thanh tháng dính trên cùng ===== */
+  .bar {
+    position: sticky; top: 0; z-index: 10; background: var(--bg);
+    display: flex; align-items: stretch; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line);
+  }
+  .bar[hidden] { display: none; }
+  .arrow {
+    flex: 0 0 58px; font-size: 30px; line-height: 1; color: var(--red);
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; cursor: pointer; min-height: 58px;
+  }
+  .arrow[disabled] { opacity: .3; cursor: default; }
+  .cur {
+    flex: 1; min-width: 0; font-size: 21px; font-weight: 700; color: var(--on); background: var(--red);
+    border: 0; border-radius: 12px; cursor: pointer; padding: 6px 10px; line-height: 1.25;
+  }
+  .cur small { display: block; font-size: 13px; font-weight: 400; opacity: .85; }
+
+  /* ===== Các lớp phủ toàn màn hình ===== */
+  .panel { position: fixed; inset: 0; z-index: 30; background: var(--bg); overflow-y: auto; padding: 0 16px 40px; }
+  .panel[hidden] { display: none; }
+  .phead {
+    position: sticky; top: 0; z-index: 2; background: var(--bg); display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line);
+    font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--red);
+  }
+  .pclose {
+    font-size: 18px; font-weight: 600; color: var(--ink); background: var(--card);
+    border: 1px solid var(--line); border-radius: 10px; padding: 8px 16px; min-height: 50px; cursor: pointer; white-space: nowrap;
+  }
+  .pbody { max-width: 900px; margin: 0 auto; }
+  .label { font-size: 15px; color: var(--muted); font-weight: 600; margin: 18px 0 8px; letter-spacing: 1px; text-transform: uppercase; }
+  .note {
+    background: var(--gold-soft); border-left: 3px solid var(--gold); color: #5b4723; border-radius: 6px;
+    padding: 10px 14px; font-size: 16px; margin: 14px 0 4px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    font-size: 19px; font-weight: 600; padding: 10px 18px; border-radius: 10px; cursor: pointer; min-height: 52px;
+  }
+  .chip small { font-weight: 400; color: var(--muted); font-size: 15px; }
+  .chip[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: var(--on); }
+  .chip[aria-pressed="true"] small { color: var(--on); }
+  .mgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (min-width: 640px) { .mgrid { grid-template-columns: repeat(4, 1fr); } }
+  .mbtn {
+    font-size: 20px; font-weight: 700; color: var(--ink); background: var(--card);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 4px; min-height: 70px; cursor: pointer; line-height: 1.2;
+  }
+  .mbtn small { display: block; font-size: 14px; font-weight: 400; color: var(--muted); }
+  .mbtn[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: var(--on); }
+  .mbtn[aria-pressed="true"] small { color: var(--on); }
+  .mbtn.empty { opacity: .4; font-weight: 400; cursor: default; background: transparent; }
+  .chip:focus-visible, button:focus-visible { outline: 3px solid #1a5fb4; outline-offset: 2px; }
+
+  /* ===== Ảnh theo ngày ===== */
+  h2.month { font-family: var(--serif); font-size: 28px; margin: 22px 0 0; color: var(--red); }
+  .count { color: var(--muted); font-size: 17px; margin: 0 0 4px; }
+  .day { margin-top: 22px; }
+  .day h3 {
+    font-size: 18px; font-weight: 600; margin: 0 0 10px; padding: 0 0 6px; color: var(--ink);
+    border-bottom: 1px solid var(--line);
+  }
+  .day h3::before { content: ''; display: inline-block; width: 8px; height: 8px; margin: 0 10px 2px 2px; background: var(--gold); transform: rotate(45deg); }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
+  @media (min-width: 960px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+  .tile {
+    position: relative; display: block; width: 100%; aspect-ratio: 1 / 1; padding: 0; border: 0;
+    border-radius: 6px; overflow: hidden; background: #e9e0d2; cursor: pointer;
+  }
+  .tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.15); }
+  .play span {
+    width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.92);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--red); padding-left: 4px;
+  }
+
+  .nav { display: flex; gap: 12px; justify-content: space-between; margin-top: 32px; }
+  .big {
+    font-size: 19px; font-weight: 600; padding: 14px 20px; min-height: 56px; border-radius: 12px;
+    border: 1px solid var(--red); background: var(--card); color: var(--red); cursor: pointer;
+  }
+  .big.solid { background: var(--red); color: var(--on); }
+  .big[disabled] { opacity: .35; cursor: default; }
+  .msg { text-align: center; padding: 60px 16px; color: var(--muted); font-size: 21px; }
+
+  /* ===== Gia phả ===== */
+  .tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+  .tree ul { margin-left: 22px; padding-left: 18px; border-left: 1px solid #cdbb9c; }
+  .tree li { position: relative; margin: 10px 0; }
+  .tree ul > li::before { content: ''; position: absolute; left: -18px; top: 34px; width: 16px; border-top: 1px solid #cdbb9c; }
+  .tree details > summary { list-style: none; cursor: pointer; }
+  .tree details > summary::-webkit-details-marker { display: none; }
+  .person { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+  .person .gen { display: block; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); }
+  .person .nm { display: block; font-family: var(--serif); font-size: 21px; font-weight: 700; color: var(--ink); }
+  .person .yr { font-size: 16px; color: var(--muted); }
+  .person .sp { display: block; font-size: 16px; color: var(--muted); }
+  .person .more { display: inline-block; margin-top: 4px; font-size: 15px; font-weight: 600; color: var(--red); }
+  details[open] > summary .more .closed, details:not([open]) > summary .more .opened { display: none; }
+  .tree > li > details > summary .person { border-color: var(--gold); border-width: 1px 1px 1px 4px; }
+
+  /* ===== Ngày giỗ ===== */
+  .ybar { display: flex; align-items: center; gap: 10px; margin: 18px 0 6px; }
+  .ybar .yname { flex: 1; text-align: center; font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--red); line-height: 1.2; }
+  .ybar .yname small { display: block; font-family: 'Be Vietnam Pro', sans-serif; font-size: 15px; font-weight: 400; color: var(--muted); }
+  .next { margin: 14px 0 8px; padding: 16px 18px; border-radius: 12px; color: var(--on); background: var(--red); }
+  .next .t1 { font-size: 14px; opacity: .85; letter-spacing: 1px; text-transform: uppercase; }
+  .next .t2 { font-family: var(--serif); font-size: 24px; font-weight: 700; margin: 4px 0 2px; }
+  .next .t3 { font-size: 19px; font-weight: 600; }
+  .next .t5 { font-size: 16px; opacity: .9; }
+  .next .t4 { display: inline-block; margin-top: 10px; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; padding: 2px 12px; font-size: 15px; }
+  .gio-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .gio { display: flex; gap: 14px; align-items: stretch; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+  .gio.past { opacity: .5; }
+  .gio .date {
+    flex: 0 0 76px; text-align: center; border-right: 1px solid var(--line); color: var(--red);
+    display: flex; flex-direction: column; justify-content: center; padding: 4px 10px 4px 0;
+  }
+  .gio .date b { font-family: var(--serif); font-size: 32px; line-height: 1; }
+  .gio .date span { font-size: 14px; color: var(--muted); }
+  .gio .info { flex: 1; min-width: 0; }
+  .gio .info .nm { font-family: var(--serif); font-size: 19px; font-weight: 700; }
+  .gio .info .rel { font-size: 15px; color: var(--muted); }
+  .gio .info .lu { font-size: 15px; color: var(--gold); font-weight: 600; }
+  .gio .info .dow { font-size: 16px; }
+
+  /* ===== Xem ảnh lớn ===== */
+  .viewer { position: fixed; inset: 0; z-index: 40; background: #111; color: #fff; display: none; flex-direction: column; }
+  .viewer.open { display: flex; }
+  .vtop { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; gap: 12px; }
+  .vtop .pos { font-size: 17px; color: #ddd; }
+  .vbtn {
+    font-size: 19px; font-weight: 600; color: #fff; background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.35); border-radius: 10px; padding: 10px 18px; min-height: 52px; cursor: pointer;
+  }
+  .vbtn[disabled] { opacity: .3; cursor: default; }
+  .stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; }
+  .stage img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .stage iframe { width: 100%; max-width: 1000px; height: 100%; max-height: 80vh; border: 0; background: #000; }
+  .vinfo { text-align: center; padding: 8px 16px 0; font-size: 17px; color: #eee; }
+  .vinfo .cap { font-size: 19px; color: #fff; margin-top: 2px; }
+  .vbottom { display: flex; justify-content: space-between; gap: 12px; padding: 12px; }
+  .vbottom .vbtn { flex: 1; max-width: 260px; }
+
+  /* ===== Điện thoại ===== */
+  @media (max-width: 600px) {
+    .wrap { padding: 0 10px 40px; }
+    .hero { height: 200px; margin: 0 -10px; }
+    .masthead { padding-top: 14px; }
+    .masthead h1 { font-size: 28px; }
+    .masthead .orn span { font-size: 12px; letter-spacing: 2px; }
+    .actions { gap: 8px; margin-top: 14px; }
+    .act { font-size: 18px; min-height: 62px; gap: 10px; padding: 8px 12px; }
+    .act svg.i { width: 26px; height: 26px; }
+    .act small { font-size: 13px; }
+    h2.month { font-size: 24px; margin-top: 14px; }
+    .day { margin-top: 18px; }
+    .day h3 { font-size: 17px; }
+    .grid { gap: 4px; }
+    .tile { border-radius: 4px; }
+    .play span { width: 48px; height: 48px; font-size: 20px; }
+    .nav .big { flex: 1; font-size: 17px; padding: 12px 8px; }
+    .vbtn { font-size: 17px; padding: 8px 14px; }
+    .vinfo { font-size: 15px; }
+    .mbtn { font-size: 19px; white-space: nowrap; }
+    .phead { font-size: 21px; }
+    .panel { padding: 0 10px 40px; }
+    .tree ul { margin-left: 10px; padding-left: 14px; }
+    .tree ul > li::before { left: -14px; width: 12px; }
+    .person .nm { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero" id="hero"><div class="photo" id="coverPhoto"></div></header>
+  <div class="masthead">
+    <h1 id="title">Album gia đình</h1>
+    <div class="orn"><span>Ảnh &amp; video gia đình</span></div>
+  </div>
+
+  <div class="actions">
+    <button class="act tree" id="btnTree"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.5" width="6" height="4.5" rx="1"/><rect x="2.5" y="17" width="6" height="4.5" rx="1"/><rect x="15.5" y="17" width="6" height="4.5" rx="1"/><path d="M12 7v5M5.5 17v-5h13v5"/></svg><span>Gia phả<small>Sơ đồ các đời</small></span></button>
+    <button class="act gio" id="btnGio"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M12 12.5c1.2 1.3 1.6 2.3 1.6 3.2a1.6 1.6 0 0 1-3.2 0c0-.9.4-1.9 1.6-3.2z"/></svg><span>Ngày giỗ<small>Theo ngày dương</small></span></button>
+  </div>
+
+  <div class="bar" id="bar" hidden>
+    <button class="arrow" id="tprev" aria-label="Tháng trước">‹</button>
+    <button class="cur" id="tpick"><span id="tcur"></span><small>Bấm để chọn tháng khác</small></button>
+    <button class="arrow" id="tnext" aria-label="Tháng sau">›</button>
+  </div>
+
+  <main id="main"><div class="msg">Đang tải ảnh, xin chờ một chút…</div></main>
+</div>
+
+<!-- Chọn tháng -->
+<div class="panel" id="picker" hidden role="dialog" aria-modal="true" aria-label="Chọn tháng">
+  <div class="phead"><span>Chọn tháng</span><button class="pclose" data-close="picker">Đóng</button></div>
+  <div class="pbody">
+    <div class="label">Năm</div>
+    <div class="chips" id="years"></div>
+    <div class="label">Tháng</div>
+    <div class="mgrid" id="months"></div>
+  </div>
+</div>
+
+<!-- Gia phả -->
+<div class="panel" id="treePanel" hidden role="dialog" aria-modal="true" aria-label="Gia phả">
+  <div class="phead"><span>Gia phả dòng họ</span><button class="pclose" data-close="treePanel">Đóng</button></div>
+  <div class="pbody">
+    <div class="note" id="treeNote">Đây là <b>dữ liệu mẫu</b> để xem thử cách hiển thị. Sẽ thay bằng gia phả thật của gia đình.</div>
+    <p style="font-size:17px;color:var(--muted);margin:10px 0 0">Bấm vào từng người để mở / thu gọn các con.</p>
+    <ul class="tree" id="tree"></ul>
+  </div>
+</div>
+
+<!-- Ngày giỗ -->
+<div class="panel" id="gioPanel" hidden role="dialog" aria-modal="true" aria-label="Ngày giỗ">
+  <div class="phead"><span>Lịch ngày giỗ</span><button class="pclose" data-close="gioPanel">Đóng</button></div>
+  <div class="pbody">
+    <div class="note" id="gioNote">Đây là <b>dữ liệu mẫu</b>. Ngày giỗ tính theo âm lịch; trang tự đổi ra ngày dương lịch của từng năm.</div>
+    <div id="gioNext"></div>
+    <div class="ybar">
+      <button class="arrow" id="gprev" aria-label="Năm trước">‹</button>
+      <div class="yname" id="gyear"></div>
+      <button class="arrow" id="gnext" aria-label="Năm sau">›</button>
+    </div>
+    <div class="gio-list" id="gioList"></div>
+  </div>
+</div>
+
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Xem ảnh">
+  <div class="vtop">
+    <span class="pos" id="vpos"></span>
+    <button class="vbtn" id="vclose">✕ Đóng</button>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="vinfo" id="vinfo"></div>
+  <div class="vbottom">
+    <button class="vbtn" id="vprev">‹ Ảnh trước</button>
+    <button class="vbtn" id="vnext">Ảnh sau ›</button>
+  </div>
+</div>
+
+<script>
+  /* ======================= DỮ LIỆU GIA PHẢ & NGÀY GIỖ =======================
+   * (đang là DỮ LIỆU MẪU — sẽ thay bằng thông tin thật của gia đình)
+   * Gia phả: mỗi người { ten, nam (năm sinh - năm mất), vo / chong, con: [ ... ] }
+   * Ngày giỗ: { ten, quanHe, ngay, thang }  — ngày/tháng ÂM LỊCH
+   */
+  const DATA_MAU = true;
+  const COVER_ID = '1jPTNYFB3qQaFFtYBg5IkdE3Ww7NOuZQO'; // ảnh bìa (ảnh cả nhà chụp chung)
+  const GIA_PHA = {
+    ten: 'Cụ Hiệp', nam: '1920 – 1998', vo: 'Cụ bà (tên cụ bà)',
+    con: [
+      { ten: 'Con trưởng', nam: '1945', vo: 'Vợ con trưởng',
+        con: [{ ten: 'Cháu nội 1', nam: '1970', vo: 'Vợ cháu', con: [{ ten: 'Chắt 1', nam: '1995' }, { ten: 'Chắt 2', nam: '1998' }] },
+              { ten: 'Cháu nội 2', nam: '1974', chong: 'Chồng cháu' }] },
+      { ten: 'Con thứ hai', nam: '1948', chong: 'Chồng con thứ hai',
+        con: [{ ten: 'Cháu ngoại 1', nam: '1972' }, { ten: 'Cháu ngoại 2', nam: '1976' }] },
+      { ten: 'Con út', nam: '1955', vo: 'Vợ con út', con: [{ ten: 'Cháu nội 3', nam: '1985' }] }
+    ]
+  };
+  const NGAY_GIO = [
+    { ten: 'Cụ ông Hiệp', quanHe: 'Cụ tổ', ngay: 12, thang: 3 },
+    { ten: 'Cụ bà', quanHe: 'Cụ tổ', ngay: 5, thang: 8 },
+    { ten: 'Ông (con trưởng)', quanHe: 'Đời thứ hai', ngay: 20, thang: 10 },
+    { ten: 'Bà (vợ con trưởng)', quanHe: 'Đời thứ hai', ngay: 30, thang: 12 }
+  ];
+  /* ========================================================================= */
+
+  const API_URL = "https://script.google.com/macros/s/AKfycbzArIl-VoTpRsUCC1fICpm8u7wV77RHrI7A3MJ2GUQLrH9vIjFKMRLzLyCnpYeIy31C/exec?format=json";
+  const PRELOAD = null;
+  const DRIVE = 'https:' + '/' + '/drive.google.com';
+  const YT = 'https:' + '/' + '/www.youtube.com';
+  const THU = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+  const LS = 'album_data_v1';
+
+  let items = [];
+  let byYear = {};
+  let curYear = null, curMonth = null, pickYear = null;
+  let monthList = [];
+  let viewIdx = -1;
+  let shown = false;
+
+  const $ = function (id) { return document.getElementById(id); };
+  const pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  const esc = function (s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+  const thumb = function (it, w) { return DRIVE + '/thumbnail?id=' + it.id + '&sz=w' + w; };
+  // Ảnh thu nhỏ chưa có (ảnh mới lên) -> thử link khác, cuối cùng tải ảnh gốc
+  window.fb = function (img) {
+    const id = img.getAttribute('data-id'), k = img.getAttribute('data-k');
+    const step = Number(img.getAttribute('data-step') || 0) + 1;
+    img.setAttribute('data-step', step);
+    if (step === 1) { img.src = 'https:' + '/' + '/lh3.googleusercontent.com/d/' + id + '=w' + (img.getAttribute('data-w') || 600); return; }
+    if (step === 2 && k === 'i') { imgQueue.push(img); pumpImg(); return; }
+    if (step <= 4) { setTimeout(function () { img.src = thumb({ id: id }, 600) + '&r=' + step; }, 15000 * step); return; }
+    img.style.visibility = 'hidden';
+  };
+  // Lấy ảnh gốc qua máy chủ album, tối đa 4 ảnh cùng lúc
+  const imgQueue = [];
+  let imgBusy = 0;
+  function pumpImg() {
+    while (imgBusy < 4 && imgQueue.length) {
+      const img = imgQueue.shift();
+      if (!img.isConnected) continue;
+      imgBusy++;
+      fetch(API_URL.replace('format=json', 'format=img&id=' + encodeURIComponent(img.getAttribute('data-id'))), { credentials: 'omit' })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (j.d) img.src = j.d; else img.style.visibility = 'hidden'; })
+        .catch(function () { img.style.visibility = 'hidden'; })
+        .then(function () { imgBusy--; pumpImg(); });
+    }
+  }
+
+  /* ---------------- tải dữ liệu ---------------- */
+  function sig(list) { return list.length + '_' + (list.length ? list[list.length - 1].id : ''); }
+  function show(data) {
+    if (data.title) { $('title').textContent = data.title; document.title = data.title; }
+    const next = (data.items || []).slice().sort(function (a, b) { return a.t - b.t; });
+    if (shown && sig(next) === sig(items)) return; // không có gì mới
+    items = next;
+    group();
+    if (!items.length) { $('main').innerHTML = '<div class="msg">Chưa có ảnh nào.</div>'; return; }
+    $('bar').hidden = false;
+    if (shown && byYear[curYear] && byYear[curYear][curMonth]) { renderTop(); renderMonth(); return; }
+    shown = true;
+    const d = new Date(items[items.length - 1].t);
+    pick(d.getFullYear(), d.getMonth() + 1);
+  }
+  function save(data) { try { localStorage.setItem(LS, JSON.stringify(data)); } catch (e) { /* đầy bộ nhớ thì thôi */ } }
+
+  function load() {
+    if (PRELOAD) { show(PRELOAD); save(PRELOAD); return; }
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { /* bỏ qua */ }
+    if (saved && saved.items) show(saved); // mở lại: hiện ngay ảnh lần trước, rồi cập nhật
+    else $('main').innerHTML = '<div class="msg">Đang tải ảnh, xin chờ một chút…</div>';
+    fetch(API_URL, { credentials: 'omit' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { show(data); save(data); })
+      .catch(function () {
+        if (shown) return;
+        $('main').innerHTML = '<div class="msg">Không tải được ảnh.<br><br>' +
+          '<button class="big solid" onclick="load()">Thử lại</button></div>';
+      });
+  }
+
+  function group() {
+    byYear = {};
+    monthList = [];
+    items.forEach(function (it) {
+      const d = new Date(it.t);
+      const y = d.getFullYear(), m = d.getMonth() + 1;
+      byYear[y] = byYear[y] || {};
+      if (!byYear[y][m]) { byYear[y][m] = []; monthList.push([y, m]); }
+      byYear[y][m].push(it);
+    });
+    monthList.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+  }
+
+  /* ---------------- chọn tháng ---------------- */
+  function pick(y, m) {
+    curYear = y;
+    const months = Object.keys(byYear[y] || {}).map(Number).sort(function (a, b) { return a - b; });
+    curMonth = months.indexOf(m) !== -1 ? m : (months.length ? months[months.length - 1] : m);
+    renderTop();
+    renderMonth();
+  }
+  function renderTop() {
+    $('tcur').textContent = 'Tháng ' + curMonth + ' / ' + curYear;
+    const pos = monthIndex();
+    $('tprev').disabled = pos <= 0;
+    $('tnext').disabled = pos === -1 || pos >= monthList.length - 1;
+  }
+  function goMonth(n) {
+    const t = monthList[monthIndex() + n];
+    if (!t) return;
+    pick(t[0], t[1]);
+    $('bar').scrollIntoView();
+  }
+  function openPanel(id) { $(id).hidden = false; $(id).scrollTop = 0; document.body.style.overflow = 'hidden'; }
+  function closePanel(id) { $(id).hidden = true; document.body.style.overflow = ''; }
+  function openPicker() { pickYear = curYear; renderChips(); openPanel('picker'); }
+
+  function renderChips() {
+    const years = Object.keys(byYear).map(Number);
+    years.sort(function (a, b) { return b - a; });
+    $('years').innerHTML = years.map(function (y) {
+      let n = 0;
+      Object.keys(byYear[y] || {}).forEach(function (m) { n += byYear[y][m].length; });
+      return '<button class="chip" data-y="' + y + '" aria-pressed="' + (y === pickYear) + '">Năm ' + y +
+        ' <small>(' + n + ')</small></button>';
+    }).join('');
+    let html = '';
+    for (let m = 1; m <= 12; m++) {
+      const n = (byYear[pickYear] && byYear[pickYear][m]) ? byYear[pickYear][m].length : 0;
+      html += '<button class="mbtn' + (n ? '' : ' empty') + '" data-m="' + m + '" aria-pressed="' + (pickYear === curYear && m === curMonth) + '">Tháng ' + m +
+        '<small>' + (n ? n + ' ảnh' : 'chưa có') + '</small></button>';
+    }
+    $('months').innerHTML = html;
+  }
+
+  function current() { return (byYear[curYear] && byYear[curYear][curMonth]) || []; }
+
+  function renderMonth() {
+    const list = current();
+    if (!list.length) {
+      $('main').innerHTML = '<h2 class="month">Tháng ' + curMonth + ' năm ' + curYear + '</h2>' +
+        '<div class="msg">Tháng này chưa có ảnh nào.</div>';
+      return;
+    }
+    const photos = list.filter(function (x) { return x.k === 'i'; }).length;
+    const videos = list.length - photos;
+    let html = '<h2 class="month">Tháng ' + curMonth + ' năm ' + curYear + '</h2>' +
+      '<p class="count">' + (photos ? photos + ' ảnh' : '') + (photos && videos ? ', ' : '') + (videos ? videos + ' video' : '') + '</p>';
+    let lastDay = '';
+    list.forEach(function (it, i) {
+      const d = new Date(it.t);
+      const key = it.nd ? 'nd' : d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+      if (key !== lastDay) {
+        if (lastDay) html += '</div></section>';
+        html += '<section class="day"><h3>' + (it.nd ? 'Trong tháng ' + (d.getMonth() + 1) + ' (không rõ ngày)' :
+          THU[d.getDay()] + ', ngày ' + d.getDate() + ' tháng ' + (d.getMonth() + 1)) + '</h3><div class="grid">';
+        lastDay = key;
+      }
+      const isVid = it.k !== 'i';
+      const src = it.k === 'y' ? YT.replace('www.', 'i.').replace('youtube.com', 'ytimg.com') + '/vi/' + it.yt + '/hqdefault.jpg' : thumb(it, 600);
+      html += '<button class="tile" data-i="' + i + '" aria-label="' + (isVid ? 'Xem video' : 'Xem ảnh') + '">' +
+        '<img loading="lazy" src="' + src + '" alt=""' + (it.k === 'y' ? '' : ' data-id="' + it.id + '" data-k="' + it.k + '" onerror="fb(this)"') + '>' +
+        (isVid ? '<span class="play"><span>▶</span></span>' : '') + '</button>';
+    });
+    if (lastDay) html += '</div></section>';
+
+    const pos = monthIndex();
+    const prev = monthList[pos - 1], next = monthList[pos + 1];
+    html += '<div class="nav">' +
+      '<button class="big" id="mprev"' + (prev ? '' : ' disabled') + '>‹ ' + (prev ? 'Tháng ' + prev[1] + '/' + prev[0] : 'Tháng trước') + '</button>' +
+      '<button class="big" id="mnext"' + (next ? '' : ' disabled') + '>' + (next ? 'Tháng ' + next[1] + '/' + next[0] : 'Tháng sau') + ' ›</button>' +
+      '</div>';
+    $('main').innerHTML = html;
+    if (prev) $('mprev').onclick = function () { goMonth(-1); };
+    if (next) $('mnext').onclick = function () { goMonth(1); };
+  }
+
+  function monthIndex() {
+    for (let i = 0; i < monthList.length; i++) if (monthList[i][0] === curYear && monthList[i][1] === curMonth) return i;
+    return -1;
+  }
+
+  /* ---------------- xem ảnh lớn ---------------- */
+  function openView(i) {
+    viewIdx = i;
+    $('viewer').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    showView();
+    $('vclose').focus();
+  }
+  function closeView() {
+    $('viewer').classList.remove('open');
+    $('stage').innerHTML = '';
+    document.body.style.overflow = '';
+    viewIdx = -1;
+  }
+  function showView() {
+    const list = current();
+    const it = list[viewIdx];
+    const d = new Date(it.t);
+    if (it.k === 'i') {
+      $('stage').innerHTML = '<img src="' + thumb(it, 2000) + '" alt="" data-id="' + it.id + '" data-k="i" data-w="2000" onerror="fb(this)">';
+    } else if (it.k === 'y') {
+      $('stage').innerHTML = '<iframe allowfullscreen allow="autoplay; fullscreen" src="' + YT + '/embed/' + it.yt + '"></iframe>';
+    } else {
+      $('stage').innerHTML = '<iframe allowfullscreen allow="autoplay; fullscreen" src="' + DRIVE + '/file/d/' + it.id + '/preview"></iframe>';
+    }
+    $('vpos').textContent = (viewIdx + 1) + ' / ' + list.length;
+    $('vinfo').innerHTML = THU[d.getDay()] + ', ' + d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear() +
+      ' · ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + (it.c ? '<div class="cap">' + esc(it.c) + '</div>' : '');
+    $('vprev').disabled = viewIdx === 0;
+    $('vnext').disabled = viewIdx === list.length - 1;
+  }
+  function step(n) {
+    const j = viewIdx + n;
+    if (j < 0 || j >= current().length) return;
+    viewIdx = j;
+    showView();
+  }
+
+  /* ---------------- gia phả ---------------- */
+  function personHtml(p, gen) {
+    const kids = p.con || [];
+    const card = '<span class="person"><span class="gen">Đời thứ ' + gen + '</span>' +
+      '<span class="nm">' + esc(p.ten) + '</span>' + (p.nam ? '<span class="yr">' + esc(p.nam) + '</span>' : '') +
+      (p.vo ? '<span class="sp">Vợ: ' + esc(p.vo) + '</span>' : '') + (p.chong ? '<span class="sp">Chồng: ' + esc(p.chong) + '</span>' : '') +
+      (kids.length ? '<span class="more"><span class="opened">▾ Thu gọn ' + kids.length + ' người con</span><span class="closed">▸ Xem ' + kids.length + ' người con</span></span>' : '') +
+      '</span>';
+    if (!kids.length) return '<li>' + card + '</li>';
+    return '<li><details' + (gen < 3 ? ' open' : '') + '><summary>' + card + '</summary><ul>' +
+      kids.map(function (k) { return personHtml(k, gen + 1); }).join('') + '</ul></details></li>';
+  }
+  function openTree() {
+    $('treeNote').hidden = !DATA_MAU;
+    $('tree').innerHTML = personHtml(GIA_PHA, 1);
+    openPanel('treePanel');
+  }
+
+  /* ---------------- ngày giỗ: âm lịch -> dương lịch (thuật toán Hồ Ngọc Đức, GMT+7) ---------------- */
+  const AL = (function () {
+    const PI = Math.PI;
+    function jdFromDate(dd, mm, yy) {
+      const a = Math.floor((14 - mm) / 12), y = yy + 4800 - a, m = mm + 12 * a - 3;
+      let jd = dd + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+      if (jd < 2299161) jd = dd + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - 32083;
+      return jd;
+    }
+    function jdToDate(jd) {
+      let b, c;
+      if (jd > 2299160) { const a = jd + 32044; b = Math.floor((4 * a + 3) / 146097); c = a - Math.floor((b * 146097) / 4); }
+      else { b = 0; c = jd + 32082; }
+      const d = Math.floor((4 * c + 3) / 1461), e = c - Math.floor((1461 * d) / 4), m = Math.floor((5 * e + 2) / 153);
+      return [e - Math.floor((153 * m + 2) / 5) + 1, m + 3 - 12 * Math.floor(m / 10), b * 100 + d - 4800 + Math.floor(m / 10)];
+    }
+    function newMoon(k) {
+      const T = k / 1236.85, T2 = T * T, T3 = T2 * T, dr = PI / 180;
+      let Jd1 = 2415020.75933 + 29.53058868 * k + 0.0001178 * T2 - 0.000000155 * T3;
+      Jd1 += 0.00033 * Math.sin((166.56 + 132.87 * T - 0.009173 * T2) * dr);
+      const M = 359.2242 + 29.10535608 * k - 0.0000333 * T2 - 0.00000347 * T3;
+      const Mpr = 306.0253 + 385.81691806 * k + 0.0107306 * T2 + 0.00001236 * T3;
+      const F = 21.2964 + 390.67050646 * k - 0.0016528 * T2 - 0.00000239 * T3;
+      let C1 = (0.1734 - 0.000393 * T) * Math.sin(M * dr) + 0.0021 * Math.sin(2 * dr * M);
+      C1 = C1 - 0.4068 * Math.sin(Mpr * dr) + 0.0161 * Math.sin(dr * 2 * Mpr);
+      C1 = C1 - 0.0004 * Math.sin(dr * 3 * Mpr);
+      C1 = C1 + 0.0104 * Math.sin(dr * 2 * F) - 0.0051 * Math.sin(dr * (M + Mpr));
+      C1 = C1 - 0.0074 * Math.sin(dr * (M - Mpr)) + 0.0004 * Math.sin(dr * (2 * F + M));
+      C1 = C1 - 0.0004 * Math.sin(dr * (2 * F - M)) - 0.0006 * Math.sin(dr * (2 * F + Mpr));
+      C1 = C1 + 0.0010 * Math.sin(dr * (2 * F - Mpr)) + 0.0005 * Math.sin(dr * (2 * Mpr + M));
+      const deltat = T < -11
+        ? 0.001 + 0.000839 * T + 0.0002261 * T2 - 0.00000845 * T3 - 0.000000081 * T * T3
+        : -0.000278 + 0.000265 * T + 0.000262 * T2;
+      return Jd1 + C1 - deltat;
+    }
+    function newMoonDay(k) { return Math.floor(newMoon(k) + 0.5 + 7 / 24); }
+    function sunLong(jdn) {
+      const T = (jdn - 2451545.0) / 36525, T2 = T * T, dr = PI / 180;
+      const M = 357.52910 + 35999.05030 * T - 0.0001559 * T2 - 0.00000048 * T * T2;
+      const L0 = 280.46645 + 36000.76983 * T + 0.0003032 * T2;
+      let DL = (1.914600 - 0.004817 * T - 0.000014 * T2) * Math.sin(dr * M);
+      DL += (0.019993 - 0.000101 * T) * Math.sin(dr * 2 * M) + 0.000290 * Math.sin(dr * 3 * M);
+      const L = (L0 + DL) * dr;
+      return L - PI * 2 * Math.floor(L / (PI * 2));
+    }
+    function sunLongSeg(day) { return Math.floor(sunLong(day - 0.5 - 7 / 24) / PI * 6); }
+    function lunarMonth11(yy) {
+      const k = Math.floor((jdFromDate(31, 12, yy) - 2415021) / 29.530588853);
+      let nm = newMoonDay(k);
+      if (sunLongSeg(nm) >= 9) nm = newMoonDay(k - 1);
+      return nm;
+    }
+    function leapMonthOffset(a11) {
+      const k = Math.floor((a11 - 2415021.076998695) / 29.530588853 + 0.5);
+      let last, i = 1, arc = sunLongSeg(newMoonDay(k + i));
+      do { last = arc; i++; arc = sunLongSeg(newMoonDay(k + i)); } while (arc !== last && i < 14);
+      return i - 1;
+    }
+    function monthStart(lm, ly) {
+      let a11, b11;
+      if (lm < 11) { a11 = lunarMonth11(ly - 1); b11 = lunarMonth11(ly); }
+      else { a11 = lunarMonth11(ly); b11 = lunarMonth11(ly + 1); }
+      const k = Math.floor(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+      let off = lm - 11;
+      if (off < 0) off += 12;
+      if (b11 - a11 > 365 && off >= leapMonthOffset(a11)) off += 1; // tháng nhuận: giỗ theo tháng thường
+      const start = newMoonDay(k + off);
+      return { start: start, len: newMoonDay(k + off + 1) - start };
+    }
+    return {
+      /** Âm -> Date dương lịch. Ngày 30 mà tháng thiếu thì lấy ngày 29. */
+      toSolar: function (ld, lm, ly) {
+        const m = monthStart(lm, ly);
+        const r = jdToDate(m.start + Math.min(ld, m.len) - 1);
+        return new Date(r[2], r[1] - 1, r[0]);
+      },
+      canChi: function (y) {
+        return ['Canh', 'Tân', 'Nhâm', 'Quý', 'Giáp', 'Ất', 'Bính', 'Đinh', 'Mậu', 'Kỷ'][y % 10] + ' ' +
+          ['Thân', 'Dậu', 'Tuất', 'Hợi', 'Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi'][y % 12];
+      }
+    };
+  })();
+
+  let gioYear = new Date().getFullYear();
+  function today0() { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); }
+  /** Các lần giỗ rơi vào năm dương lịch y (năm âm y-1 và y). */
+  function gioInYear(y) {
+    const out = [];
+    NGAY_GIO.forEach(function (g) {
+      [y - 1, y].forEach(function (ly) {
+        const d = AL.toSolar(g.ngay, g.thang, ly);
+        if (d.getFullYear() === y) out.push({ g: g, d: d, ly: ly });
+      });
+    });
+    return out.sort(function (a, b) { return a.d - b.d; });
+  }
+  function fmtDate(d) { return THU[d.getDay()] + ', ' + d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); }
+  function renderGio() {
+    const t0 = today0();
+    // Lần giỗ sắp tới gần nhất
+    const up = gioInYear(t0.getFullYear()).concat(gioInYear(t0.getFullYear() + 1)).filter(function (x) { return x.d >= t0; })[0];
+    if (up) {
+      const days = Math.round((up.d - t0) / 86400000);
+      $('gioNext').innerHTML = '<div class="next"><div class="t1">Ngày giỗ sắp tới</div>' +
+        '<div class="t2">' + esc(up.g.ten) + '</div>' +
+        '<div class="t3">' + fmtDate(up.d) + '</div>' +
+        '<div class="t5">Ngày ' + up.g.ngay + ' tháng ' + up.g.thang + ' âm lịch</div>' +
+        '<span class="t4">' + (days === 0 ? 'Hôm nay' : days === 1 ? 'Ngày mai' : 'Còn ' + days + ' ngày') + '</span></div>';
+    } else $('gioNext').innerHTML = '';
+    $('gyear').innerHTML = 'Năm ' + gioYear + '<small>Năm ' + AL.canChi(gioYear) + ' (âm lịch)</small>';
+    const list = gioInYear(gioYear);
+    $('gioList').innerHTML = list.length ? list.map(function (x) {
+      const past = x.d < t0;
+      return '<div class="gio' + (past ? ' past' : '') + '"><div class="date"><b>' + x.d.getDate() + '</b><span>Tháng ' + (x.d.getMonth() + 1) + '</span></div>' +
+        '<div class="info"><div class="nm">' + esc(x.g.ten) + '</div>' +
+        (x.g.quanHe ? '<div class="rel">' + esc(x.g.quanHe) + '</div>' : '') +
+        '<div class="dow">' + fmtDate(x.d) + (past ? ' · đã qua' : '') + '</div>' +
+        '<div class="lu">Ngày ' + x.g.ngay + ' tháng ' + x.g.thang + ' âm lịch</div></div></div>';
+    }).join('') : '<div class="msg">Chưa có ngày giỗ nào.</div>';
+  }
+  function openGio() {
+    $('gioNote').hidden = !DATA_MAU;
+    gioYear = new Date().getFullYear();
+    renderGio();
+    openPanel('gioPanel');
+  }
+
+  /* ---------------- sự kiện ---------------- */
+  document.addEventListener('click', function (e) {
+    const c = e.target.closest('[data-close]');
+    if (c) { closePanel(c.dataset.close); return; }
+    const y = e.target.closest('[data-y]');
+    if (y) { pickYear = Number(y.dataset.y); renderChips(); return; }
+    const m = e.target.closest('[data-m]');
+    if (m) {
+      if (m.classList.contains('empty')) return;
+      closePanel('picker');
+      curYear = pickYear; curMonth = Number(m.dataset.m);
+      renderTop(); renderMonth(); $('bar').scrollIntoView();
+      return;
+    }
+    const t = e.target.closest('.tile');
+    if (t) openView(Number(t.dataset.i));
+  });
+  $('vclose').onclick = closeView;
+  $('tprev').onclick = function () { goMonth(-1); };
+  $('tnext').onclick = function () { goMonth(1); };
+  $('tpick').onclick = openPicker;
+  $('btnTree').onclick = openTree;
+  $('btnGio').onclick = openGio;
+  $('gprev').onclick = function () { gioYear--; renderGio(); };
+  $('gnext').onclick = function () { gioYear++; renderGio(); };
+  $('vprev').onclick = function () { step(-1); };
+  $('vnext').onclick = function () { step(1); };
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      const open = ['picker', 'treePanel', 'gioPanel'].filter(function (id) { return !$(id).hidden; })[0];
+      if (open) { closePanel(open); return; }
+    }
+    if (viewIdx < 0) return;
+    if (e.key === 'Escape') closeView();
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+  let sx = null;
+  $('stage').addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+  $('stage').addEventListener('touchend', function (e) {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 60) step(dx < 0 ? 1 : -1);
+    sx = null;
+  });
+
+  $('coverPhoto').style.backgroundImage = 'url("' + thumb({ id: COVER_ID }, 1600) + '")';
+  load();
+</script>
+</body>
+</html>
